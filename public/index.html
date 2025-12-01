@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Chess - Play with Friends Worldwide</title>
+    <meta name="description"
+        content="Play chess online with players from around the world. Real-time multiplayer chess game with beautiful interface.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>♔ Online Chess ♚</h1>
+            <p class="subtitle">Play with anyone, anywhere in the world</p>
+            <div id="auth-section" class="auth-section">
+                <div id="guest-links">
+                    <a href="login.html" class="auth-link">Login</a>
+                    <a href="register.html" class="auth-link">Register</a>
+                </div>
+                <div id="user-info" class="user-info hidden">
+                    <span id="welcome-text"></span>
+                    <button id="logout-btn" class="btn-link">Logout</button>
+                    <button id="profile-btn" class="btn-link">My Profile</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Connection Status -->
+        <div id="connection-status" class="status-badge">
+            <span class="status-dot"></span>
+            <span id="status-text">Connecting...</span>
+        </div>
+
+        <!-- Room Controls -->
+        <div id="room-controls" class="room-controls">
+            <div class="control-group">
+                <label for="time-control">Time Control:</label>
+                <select id="time-control" class="time-select">
+                    <option value="blitz">Blitz (3+2)</option>
+                    <option value="rapid" selected>Rapid (10+5)</option>
+                    <option value="classical">Classical (30+0)</option>
+                    <option value="bullet">Bullet (1+0)</option>
+                </select>
+                <button id="create-room-btn" class="btn btn-primary">
+                    <span class="btn-icon">➕</span>
+                    Create New Game
+                </button>
+            </div>
+            <div class="control-group">
+                <input type="text" id="room-code-input" placeholder="Enter room code..." maxlength="6">
+                <button id="join-room-btn" class="btn btn-secondary">
+                    <span class="btn-icon">🚪</span>
+                    Join Game
+                </button>
+            </div>
+            <div class="divider">OR</div>
+            <div class="control-group">
+                <label for="ai-difficulty">AI Difficulty:</label>
+                <select id="ai-difficulty" class="time-select">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button id="play-ai-btn" class="btn btn-primary">
+                    <span class="btn-icon">🤖</span>
+                    Play vs Computer
+                </button>
+            </div>
+            <div class="divider">OR</div>
+            <div class="control-group">
+                <input type="text" id="spectate-code-input" placeholder="Room code to watch..." maxlength="6">
+                <button id="spectate-btn" class="btn btn-secondary">
+                    <span class="btn-icon">👁️</span>
+                    Watch Game
+                </button>
+            </div>
+            <div id="room-info" class="room-info hidden">
+                <p>Room Code: <span id="current-room-code" class="room-code"></span></p>
+                <p>Your Color: <span id="player-color"></span></p>
+                <p id="waiting-message" class="waiting">Waiting for opponent...</p>
+            </div>
+        </div>
+
+        <!-- Game Container -->
+        <div id="game-container" class="game-container hidden">
+            <div class="game-sidebar">
+                <!-- Captured Pieces -->
+                <div class="captured-pieces">
+                    <h3>Captured Pieces</h3>
+                    <div class="captured-section">
+                        <h4>White Captured:</h4>
+                        <div id="white-captured" class="captured-list"></div>
+                    </div>
+                    <div class="captured-section">
+                        <h4>Black Captured:</h4>
+                        <div id="black-captured" class="captured-list"></div>
+                    </div>
+                </div>
+
+                <!-- Move History -->
+                <div class="move-history">
+                    <h3>Move History</h3>
+                    <div id="move-list" class="move-list"></div>
+                </div>
+            </div>
+
+            <div class="game-main">
+                <!-- Game Status -->
+                <div id="game-status" class="game-status">
+                    <div class="turn-indicator">
+                        <span id="turn-text">White's Turn</span>
+                    </div>
+                    <div id="spectator-info" class="spectator-info"></div>
+                    <div id="check-indicator" class="check-indicator hidden">
+                        ⚠️ Check!
+                    </div>
+                </div>
+
+                <!-- Player Stats -->
+                <div id="player-stats" class="player-stats hidden">
+                    <div class="stat-item">
+                        <span class="stat-label">Wins:</span>
+                        <span id="stat-wins" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Losses:</span>
+                        <span id="stat-losses" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Draws:</span>
+                        <span id="stat-draws" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <!-- Game Controls -->
+                <div id="game-controls" class="game-controls hidden">
+                    <button id="surrender-btn" class="btn btn-danger">
+                        🏳️ Surrender
+                    </button>
+                </div>
+
+                <!-- Chess Timers -->
+                <div id="timer-container" class="timer-container hidden">
+                    <div class="timer timer-black">
+                        <div class="timer-label">Black</div>
+                        <div id="timer-black" class="timer-display">10:00</div>
+                    </div>
+                    <div class="timer timer-white active">
+                        <div class="timer-label">White</div>
+                        <div id="timer-white" class="timer-display">10:00</div>
+                    </div>
+                </div>
+
+                <!-- Chess Board -->
+                <div id="chess-board" class="chess-board">
+                    <!-- Board will be generated by JavaScript -->
+                </div>
+
+                <!-- Pawn Promotion Dialog -->
+                <div id="promotion-dialog" class="promotion-dialog hidden">
+                    <h3>Promote Pawn</h3>
+                    <div class="promotion-choices">
+                        <button class="promotion-choice" data-piece="queen">♕</button>
+                        <button class="promotion-choice" data-piece="rook">♖</button>
+                        <button class="promotion-choice" data-piece="bishop">♗</button>
+                        <button class="promotion-choice" data-piece="knight">♘</button>
+                    </div>
+                </div>
+
+                <!-- Game Over Dialog -->
+                <div id="game-over-dialog" class="game-over-dialog hidden">
+                    <div class="dialog-content">
+                        <h2 id="game-over-title">Game Over</h2>
+                        <p id="game-over-message"></p>
+                        <button id="new-game-btn" class="btn btn-primary">New Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.io client -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Game scripts -->
+    <script src="chess-timer.js"></script>
+    <script src="chess-ai.js"></script>
+    <script src="chess-game.js"></script>
+    <script src="chess-ui.js"></script>
+    <script src="multiplayer-client.js"></script>
+</body>
+
+</html>
