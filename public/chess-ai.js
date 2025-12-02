@@ -45,41 +45,62 @@ class ChessAI {
 
     // Find best move for AI
     getBestMove(game) {
-        let bestScore = -Infinity;
-        let bestMove = null;
-        const moves = this.getAllPossibleMoves(game, game.currentTurn);
+        const startTime = Date.now();
+        const timeLimit = 3000; // 3 seconds timeout
 
-        // Shuffle moves for variety at same depth
-        this.shuffleArray(moves);
+        try {
+            let bestScore = -Infinity;
+            let bestMove = null;
+            const moves = this.getAllPossibleMoves(game, game.currentTurn);
 
-        for (const move of moves) {
-            const { from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol } } = move;
+            // Shuffle moves for variety at same depth
+            this.shuffleArray(moves);
 
-            // Try the move
-            const piece = game.getPiece(fromRow, fromCol);
-            const captured = game.getPiece(toRow, toCol);
-            const tempEnPassant = game.enPassantTarget;
-            const tempCastling = JSON.parse(JSON.stringify(game.castlingRights));
+            for (const move of moves) {
+                // Check timeout
+                if (Date.now() - startTime > timeLimit) {
+                    console.warn('AI search timeout - returning best move found so far');
+                    break;
+                }
 
-            game.makeMove(fromRow, fromCol, toRow, toCol);
+                const { from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol } } = move;
 
-            // Evaluate position
-            const score = -this.minimax(game, this.maxDepth - 1, -Infinity, Infinity, false);
+                // Try the move
+                const piece = game.getPiece(fromRow, fromCol);
+                const captured = game.getPiece(toRow, toCol);
+                const tempEnPassant = game.enPassantTarget;
+                const tempCastling = JSON.parse(JSON.stringify(game.castlingRights));
 
-            // Undo move
-            this.undoMove(game, fromRow, fromCol, toRow, toCol, piece, captured, tempEnPassant, tempCastling);
+                game.makeMove(fromRow, fromCol, toRow, toCol);
 
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
+                // Evaluate position
+                const score = -this.minimax(game, this.maxDepth - 1, -Infinity, Infinity, false, startTime, timeLimit);
+
+                // Undo move
+                this.undoMove(game, fromRow, fromCol, toRow, toCol, piece, captured, tempEnPassant, tempCastling);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
             }
-        }
 
-        return bestMove;
+            return bestMove;
+        } catch (error) {
+            console.error('AI Error:', error);
+            // Fallback: return random valid move
+            const moves = this.getAllPossibleMoves(game, game.currentTurn);
+            return moves.length > 0 ? moves[Math.floor(Math.random() * moves.length)] : null;
+        }
     }
 
     // Minimax algorithm with alpha-beta pruning
-    minimax(game, depth, alpha, beta, maximizingPlayer) {
+    minimax(game, depth, alpha, beta, maximizingPlayer, startTime, timeLimit) {
+        // Check timeout
+        if (Date.now() - startTime > timeLimit) {
+            return this.evaluatePosition(game);
+        }
+
         if (depth === 0 || game.isCheckmate() || game.isStalemate()) {
             return this.evaluatePosition(game);
         }
@@ -90,6 +111,11 @@ class ChessAI {
         if (maximizingPlayer) {
             let maxEval = -Infinity;
             for (const move of moves) {
+                // Check timeout inside loop
+                if (Date.now() - startTime > timeLimit) {
+                    return maxEval;
+                }
+
                 const { from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol } } = move;
 
                 const piece = game.getPiece(fromRow, fromCol);
@@ -98,7 +124,7 @@ class ChessAI {
                 const tempCastling = JSON.parse(JSON.stringify(game.castlingRights));
 
                 game.makeMove(fromRow, fromCol, toRow, toCol);
-                const evaluation = this.minimax(game, depth - 1, alpha, beta, false);
+                const evaluation = this.minimax(game, depth - 1, alpha, beta, false, startTime, timeLimit);
                 this.undoMove(game, fromRow, fromCol, toRow, toCol, piece, captured, tempEnPassant, tempCastling);
 
                 maxEval = Math.max(maxEval, evaluation);
@@ -109,6 +135,11 @@ class ChessAI {
         } else {
             let minEval = Infinity;
             for (const move of moves) {
+                // Check timeout inside loop
+                if (Date.now() - startTime > timeLimit) {
+                    return minEval;
+                }
+
                 const { from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol } } = move;
 
                 const piece = game.getPiece(fromRow, fromCol);
@@ -117,7 +148,7 @@ class ChessAI {
                 const tempCastling = JSON.parse(JSON.stringify(game.castlingRights));
 
                 game.makeMove(fromRow, fromCol, toRow, toCol);
-                const evaluation = this.minimax(game, depth - 1, alpha, beta, true);
+                const evaluation = this.minimax(game, depth - 1, alpha, beta, true, startTime, timeLimit);
                 this.undoMove(game, fromRow, fromCol, toRow, toCol, piece, captured, tempEnPassant, tempCastling);
 
                 minEval = Math.min(minEval, evaluation);
