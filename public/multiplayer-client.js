@@ -203,8 +203,6 @@ class MultiplayerClient {
 
                 if (success) {
                     this.chessUI.renderBoard();
-                    // Add move to history ONCE here
-                    this.chessUI.addMoveToHistory(this.chessUI.game.moveHistory[this.chessUI.game.moveHistory.length - 1]);
                     this.chessUI.switchTimerTurn();
                     this.chessUI.isMyTurn = true;
 

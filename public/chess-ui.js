@@ -76,6 +76,7 @@ class ChessUI {
 
         this.updateGameStatus();
         this.updateCapturedPieces();
+        this.rebuildMoveHistory();
     }
 
     setupEventListeners() {
@@ -226,9 +227,6 @@ class ChessUI {
             this.deselectSquare();
             this.renderBoard();
 
-            // Add move to history ONCE here
-            this.addMoveToHistory(this.game.moveHistory[this.game.moveHistory.length - 1]);
-
             // Check game state
             const state = this.game.getGameState();
             if (state.isCheckmate) {
@@ -343,19 +341,28 @@ class ChessUI {
         });
     }
 
-    addMoveToHistory(move) {
+    rebuildMoveHistory() {
         const moveList = document.getElementById('move-list');
-        const moveItem = document.createElement('div');
-        moveItem.className = 'move-item';
+        if (!moveList) return;
 
-        // Handle both old string format and new object format for backwards compatibility
-        if (typeof move === 'string') {
-            moveItem.textContent = move;
-        } else {
-            moveItem.textContent = `${move.moveNumber}. ${move.notation}`;
-        }
+        // Clear existing history
+        moveList.innerHTML = '';
 
-        moveList.appendChild(moveItem);
+        // Rebuild from game's moveHistory array
+        this.game.moveHistory.forEach((move, index) => {
+            const moveItem = document.createElement('div');
+            moveItem.className = 'move-item';
+
+            // Handle both old string format and new object format
+            if (typeof move === 'string') {
+                const moveNum = Math.floor(index / 2) + 1;
+                moveItem.textContent = `${moveNum}. ${move}`;
+            } else {
+                moveItem.textContent = `${move.moveNumber}. ${move.notation}`;
+            }
+
+            moveList.appendChild(moveItem);
+        });
 
         // Scroll to bottom
         moveList.scrollTop = moveList.scrollHeight;
@@ -390,8 +397,6 @@ class ChessUI {
 
         if (success) {
             this.renderBoard();
-            // Add move to history ONCE here
-            this.addMoveToHistory(this.game.moveHistory[this.game.moveHistory.length - 1]);
             this.isMyTurn = true;
 
             // Check game state
