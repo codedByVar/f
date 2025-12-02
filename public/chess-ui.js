@@ -225,6 +225,8 @@ class ChessUI {
         if (success) {
             this.deselectSquare();
             this.renderBoard();
+
+            // Add move to history ONCE here
             this.addMoveToHistory(this.game.moveHistory[this.game.moveHistory.length - 1]);
 
             // Check game state
@@ -377,18 +379,22 @@ class ChessUI {
 
     handleOpponentMove(move) {
         const { fromRow, fromCol, toRow, toCol, promotionPiece } = move;
-        this.game.makeMove(fromRow, fromCol, toRow, toCol, promotionPiece || 'queen');
-        this.renderBoard();
-        this.addMoveToHistory(this.game.moveHistory[this.game.moveHistory.length - 1]);
-        this.isMyTurn = true;
+        const success = this.game.makeMove(fromRow, fromCol, toRow, toCol, promotionPiece || 'queen');
 
-        // Check game state
-        const state = this.game.getGameState();
-        if (state.isCheckmate || state.isStalemate) {
-            const message = state.isCheckmate ?
-                `Checkmate! ${state.currentTurn === 'white' ? 'Black' : 'White'} wins!` :
-                'Stalemate! Game is a draw.';
-            this.showGameOver(message);
+        if (success) {
+            this.renderBoard();
+            // Add move to history ONCE here
+            this.addMoveToHistory(this.game.moveHistory[this.game.moveHistory.length - 1]);
+            this.isMyTurn = true;
+
+            // Check game state
+            const state = this.game.getGameState();
+            if (state.isCheckmate || state.isStalemate) {
+                const message = state.isCheckmate ?
+                    `Checkmate! ${state.currentTurn === 'white' ? 'Black' : 'White'} wins!` :
+                    'Stalemate! Game is a draw.';
+                this.showGameOver(message);
+            }
         }
     }
 

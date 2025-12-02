@@ -191,20 +191,24 @@ class MultiplayerClient {
             const move = this.ai.getBestMove(this.chessUI.game);
             if (move) {
                 const { from, to } = move;
-                this.chessUI.game.makeMove(from.row, from.col, to.row, to.col);
-                this.chessUI.renderBoard();
-                this.chessUI.addMoveToHistory(this.chessUI.game.moveHistory[this.chessUI.game.moveHistory.length - 1]);
-                this.chessUI.switchTimerTurn();
-                this.chessUI.isMyTurn = true;
+                const success = this.chessUI.game.makeMove(from.row, from.col, to.row, to.col);
 
-                // Check game state
-                const state = this.chessUI.game.getGameState();
-                if (state.isCheckmate || state.isStalemate) {
-                    const message = state.isCheckmate ?
-                        `Checkmate! ${state.currentTurn === 'white' ? 'Black' : 'White'} wins!` :
-                        'Stalemate! Game is a draw.';
-                    this.chessUI.showGameOver(message);
-                    this.chessUI.updatePlayerStats(state.isCheckmate ? 'loss' : 'draw');
+                if (success) {
+                    this.chessUI.renderBoard();
+                    // Add move to history ONCE here
+                    this.chessUI.addMoveToHistory(this.chessUI.game.moveHistory[this.chessUI.game.moveHistory.length - 1]);
+                    this.chessUI.switchTimerTurn();
+                    this.chessUI.isMyTurn = true;
+
+                    // Check game state
+                    const state = this.chessUI.game.getGameState();
+                    if (state.isCheckmate || state.isStalemate) {
+                        const message = state.isCheckmate ?
+                            `Checkmate! ${state.currentTurn === 'white' ? 'Black' : 'White'} wins!` :
+                            'Stalemate! Game is a draw.';
+                        this.chessUI.showGameOver(message);
+                        this.chessUI.updatePlayerStats(state.isCheckmate ? 'loss' : 'draw');
+                    }
                 }
             }
         }, 500);
