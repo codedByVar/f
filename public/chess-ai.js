@@ -3,11 +3,11 @@ class ChessAI {
     constructor(difficulty = 'medium') {
         this.difficulty = difficulty;
         this.depths = {
-            easy: 2,
-            medium: 3,
-            hard: 4
+            easy: 1,
+            medium: 2,
+            hard: 2
         };
-        this.maxDepth = this.depths[difficulty] || 3;
+        this.maxDepth = this.depths[difficulty] || 2;
 
         // Piece values
         this.pieceValues = {

@@ -350,6 +350,8 @@ class ChessUI {
 
         // Rebuild from game's moveHistory array
         this.game.moveHistory.forEach((move, index) => {
+            if (!move) return; // Skip invalid moves
+
             const moveItem = document.createElement('div');
             moveItem.className = 'move-item';
 
@@ -357,8 +359,12 @@ class ChessUI {
             if (typeof move === 'string') {
                 const moveNum = Math.floor(index / 2) + 1;
                 moveItem.textContent = `${moveNum}. ${move}`;
-            } else {
+            } else if (move.notation && move.moveNumber) {
                 moveItem.textContent = `${move.moveNumber}. ${move.notation}`;
+            } else {
+                // Fallback for malformed move objects
+                const moveNum = Math.floor(index / 2) + 1;
+                moveItem.textContent = `${moveNum}. ???`;
             }
 
             moveList.appendChild(moveItem);
