@@ -162,11 +162,19 @@ class MultiplayerClient {
         const difficulty = document.getElementById('ai-difficulty').value;
         const timeControl = document.getElementById('time-control').value;
 
+        // Reset to fresh game state
+        this.chessUI.game = new ChessGame();
+        this.chessUI.initializeBoard();
+
         // Set up AI mode
         this.isAIMode = true;
         this.ai = new ChessAI(difficulty);
         this.playerColor = 'white'; // Player is always white in AI mode
         this.chessUI.setPlayerColor('white');
+
+        // Clear move history display
+        const moveList = document.getElementById('move-list');
+        if (moveList) moveList.innerHTML = '';
 
         // Hide room controls and show game
         document.getElementById('room-controls').classList.add('hidden');
