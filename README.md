@@ -28,4 +28,5 @@ This is a real-time **Online Chess Game** that you can play right in your browse
 *   **Deployment:** Render
 
 ---
-*Created for the Final Presentation*
+*Created for the Final Presentation with the help of AI*
+
