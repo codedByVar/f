@@ -46,7 +46,7 @@ class ChessAI {
     // Find best move for AI
     getBestMove(originalGame) {
         const startTime = Date.now();
-        const timeLimit = 3000; // 3 seconds timeout
+        const timeLimit = 500; // 0.5 seconds timeout - FAST response
 
         // CLONE THE GAME STATE - Critical for preventing corruption
         const game = originalGame.clone();

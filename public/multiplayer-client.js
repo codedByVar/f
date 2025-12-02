@@ -217,13 +217,30 @@ class MultiplayerClient {
 
                     // Check game state
                     const state = this.chessUI.game.getGameState();
-                    if (state.isCheckmate || state.isStalemate) {
-                        const message = state.isCheckmate ?
-                            `Checkmate! ${state.currentTurn === 'white' ? 'Black' : 'White'} wins!` :
-                            'Stalemate! Game is a draw.';
-                        this.chessUI.showGameOver(message);
-                        this.chessUI.updatePlayerStats(state.isCheckmate ? 'loss' : 'draw');
+                    if (state.isCheckmate) {
+                        this.chessUI.showGameOver(state.currentTurn === 'white' ? 'Black' : 'White');
+                        this.chessUI.stopTimer();
+                        this.chessUI.updatePlayerStats('loss'); // Player (white) loses to AI
+                    } else if (state.isStalemate) {
+                        this.chessUI.showGameOver('Draw');
+                        this.chessUI.stopTimer();
+                        this.chessUI.updatePlayerStats('draw');
                     }
+                }
+            } else {
+                // No move returned - likely Game Over (Checkmate/Stalemate)
+                console.log('AI could not find a move. Checking for Game Over...');
+                const state = this.chessUI.game.getGameState();
+                if (state.isCheckmate) {
+                    this.chessUI.showGameOver(state.currentTurn === 'white' ? 'Black' : 'White');
+                    this.chessUI.stopTimer();
+                    this.chessUI.updatePlayerStats('loss'); // Player (white) loses to AI
+                } else if (state.isStalemate) {
+                    this.chessUI.showGameOver('Draw');
+                    this.chessUI.stopTimer();
+                    this.chessUI.updatePlayerStats('draw');
+                } else {
+                    console.error('AI returned no move but game is not over?');
                 }
             }
         }, 500);
