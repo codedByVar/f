@@ -343,11 +343,18 @@ class ChessUI {
         });
     }
 
-    addMoveToHistory(moveNotation) {
+    addMoveToHistory(move) {
         const moveList = document.getElementById('move-list');
         const moveItem = document.createElement('div');
         moveItem.className = 'move-item';
-        moveItem.textContent = `${this.game.fullMoveNumber}. ${moveNotation}`;
+
+        // Handle both old string format and new object format for backwards compatibility
+        if (typeof move === 'string') {
+            moveItem.textContent = move;
+        } else {
+            moveItem.textContent = `${move.moveNumber}. ${move.notation}`;
+        }
+
         moveList.appendChild(moveItem);
 
         // Scroll to bottom

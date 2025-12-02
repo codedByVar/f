@@ -412,9 +412,13 @@ class ChessGame {
             if (fromCol === 7) this.castlingRights[piece.color].kingside = false;
         }
 
-        // Record move
+        // Record move with move number and color
         const moveNotation = this.getMoveNotation(fromRow, fromCol, toRow, toCol, piece);
-        this.moveHistory.push(moveNotation);
+        this.moveHistory.push({
+            notation: moveNotation,
+            moveNumber: this.fullMoveNumber,
+            color: this.currentTurn
+        });
 
         // Switch turn
         this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
