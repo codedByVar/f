@@ -484,4 +484,25 @@ class ChessGame {
             capturedPieces: this.capturedPieces
         };
     }
+
+    clone() {
+        const newGame = new ChessGame();
+
+        // Deep copy board
+        newGame.board = this.board.map(row => row.map(piece => piece ? { ...piece } : null));
+
+        // Copy primitives
+        newGame.currentTurn = this.currentTurn;
+        newGame.selectedSquare = null;
+        newGame.halfMoveClock = this.halfMoveClock;
+        newGame.fullMoveNumber = this.fullMoveNumber;
+
+        // Deep copy objects
+        newGame.moveHistory = JSON.parse(JSON.stringify(this.moveHistory));
+        newGame.capturedPieces = JSON.parse(JSON.stringify(this.capturedPieces));
+        newGame.castlingRights = JSON.parse(JSON.stringify(this.castlingRights));
+        newGame.enPassantTarget = this.enPassantTarget ? { ...this.enPassantTarget } : null;
+
+        return newGame;
+    }
 }

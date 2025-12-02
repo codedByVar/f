@@ -44,9 +44,12 @@ class ChessAI {
     }
 
     // Find best move for AI
-    getBestMove(game) {
+    getBestMove(originalGame) {
         const startTime = Date.now();
         const timeLimit = 3000; // 3 seconds timeout
+
+        // CLONE THE GAME STATE - Critical for preventing corruption
+        const game = originalGame.clone();
 
         try {
             let bestScore = -Infinity;
