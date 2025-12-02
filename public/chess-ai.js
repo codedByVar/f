@@ -90,6 +90,12 @@ class ChessAI {
                 }
             }
 
+            // Fallback if no best move found (e.g. timeout on first move)
+            if (!bestMove && moves.length > 0) {
+                console.warn('AI found no best move (timeout?), picking random');
+                return moves[Math.floor(Math.random() * moves.length)];
+            }
+
             return bestMove;
         } catch (error) {
             console.error('AI Error:', error);

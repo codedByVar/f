@@ -194,11 +194,20 @@ class MultiplayerClient {
     triggerAIMove() {
         if (!this.isAIMode || !this.ai) return;
 
+        // Strict validation: AI only moves for Black
+        if (this.chessUI.game.currentTurn !== 'black') {
+            console.warn('AI attempted to move but it is not Black\'s turn. Aborting.');
+            return;
+        }
+
         // Give a small delay to make it feel more natural
         setTimeout(() => {
-            const move = this.ai.getBestMove(this.chessUI.game);
-            if (move) {
-                const { from, to } = move;
+            // Double check inside timeout
+            if (this.chessUI.game.currentTurn !== 'black') return;
+
+            const bestMove = this.ai.getBestMove(this.chessUI.game);
+            if (bestMove) {
+                const { from, to } = bestMove;
                 const success = this.chessUI.game.makeMove(from.row, from.col, to.row, to.col);
 
                 if (success) {
