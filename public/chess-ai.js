@@ -199,11 +199,56 @@ class ChessAI {
         // Restore game state
         game.enPassantTarget = tempEnPassant;
         game.castlingRights = tempCastling;
+
+        // Revert fullMoveNumber if we are reverting from White's turn (meaning Black just moved)
+        if (game.currentTurn === 'white') {
+            game.fullMoveNumber--;
+        }
+
         game.currentTurn = game.currentTurn === 'white' ? 'black' : 'white';
 
         // Remove last move from history (if it was added)
         if (game.moveHistory.length > 0) {
             game.moveHistory.pop();
+        }
+
+        // Remove captured piece from capturedPieces list
+        if (capturedPiece) {
+            game.capturedPieces[capturedPiece.color].pop();
+        } else {
+            // Handle En Passant capture removal
+            // If it was an en passant move, the captured piece wasn't at toRow, toCol
+            // We can infer it was en passant if we moved a pawn diagonally to an empty square
+            if (piece.type === 'pawn' && Math.abs(fromCol - toCol) === 1 && !capturedPiece) {
+                // It was likely en passant (or just a move, but we only care if it captured)
+                // Wait, if !capturedPiece, it could be a normal move to empty square.
+                // But En Passant is the ONLY way a pawn moves diagonally to empty square.
+                const capturedColor = piece.color === 'white' ? 'black' : 'white';
+                // Check if we actually added a captured piece for this?
+                // makeMove adds it. So we should remove it.
+                // But we need to be sure it was En Passant.
+                // We can check if the move we just undid was En Passant.
+                // The tempEnPassant (previous state) might tell us if there was a target.
+                // If toRow, toCol matches tempEnPassant, it was En Passant.
+                if (tempEnPassant && toRow === tempEnPassant.row && toCol === tempEnPassant.col) {
+                     game.capturedPieces[capturedColor].pop();
+                     // Also restore the captured pawn on the board!
+                     // The captured pawn was at [fromRow, toCol] (for white) or [fromRow, toCol] ?
+                     // No, captureRow is toRow + 1 (if white moved up to toRow) -> captured was below.
+                     // White moves from 6 to 5. Capture row is 5+1 = 6? No.
+                     // White pawn at row 3. Moves to row 2. En Passant target at row 2.
+                     // Captured pawn was at row 3.
+                     // So captureRow = fromRow.
+                     const captureRow = fromRow;
+                     // Wait, makeMove logic:
+                     // const captureRow = piece.color === 'white' ? toRow + 1 : toRow - 1;
+                     // If white moves from 4 to 3 (indices). toRow=3. captureRow=4.
+                     // fromRow was 4. So yes, captureRow == fromRow.
+                     // We need to put the captured pawn back!
+                     // capturedPiece argument is null. So we need to create it.
+                     game.setPiece(captureRow, toCol, { type: 'pawn', color: capturedColor });
+                }
+            }
         }
     }
 
